@@ -1748,7 +1748,6 @@ class TestDATATYPES:
         assert c.s_strp               == "noot"
         assert sn                     == "noot"  # set through pointer
 
-    @mark.xfail
     def test35_restrict(self):
         """Strip __restrict keyword from use"""
 

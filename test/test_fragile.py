@@ -400,7 +400,7 @@ class TestFRAGILE:
         assert cppyy.gbl.myvar3
         assert cppyy.gbl.myvar4
 
-    @mark.xfail(run=False, reason="Crashes sometimes; might have been caused by https://github.com/compiler-research/CPyCppyy/pull/109")
+    # @mark.xfail(run=False, reason="Crashes sometimes; might have been caused by https://github.com/compiler-research/CPyCppyy/pull/109")
     def test16_opaque_handle(self):
         """Support use of opaque handles"""
 
@@ -502,16 +502,16 @@ class TestFRAGILE:
 
         assert capture.str() == "Hello, World\n"
 
-    @mark.xfail(condition=IS_CLANG_REPL, reason="Fails with ClangRepl")
     def test21_failing_cppcode(self):
         """Check error behavior of failing C++ code"""
 
         import cppyy, string, re
 
-        allspace = re.compile(r'\s+')
-        def get_errmsg(exc, allspace=allspace):
+        def get_errmsg(exc):
+            allspace = re.compile(r'\s+')
+            allcolor = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
             err = str(exc.value)
-            return re.sub(allspace, '', err)
+            return re.sub(allspace, '', re.sub(allcolor, '', err))
 
         with raises(ImportError) as include_exc:
             cppyy.include("doesnotexist.h")
@@ -586,6 +586,7 @@ class TestFRAGILE:
 
         with raises(SyntaxError):
           # redefine symbol, leading to duplicate
+            # ???: What is the behaviour in clang-repl here?
             cppyy.cppdef("""\
             namespace fragile {
                 int add42(int i) { return i + 42; }

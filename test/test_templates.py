@@ -187,7 +187,6 @@ class TestTEMPLATES:
         assert issubclass(select_template_arg[0, int, float].argument, int)
         assert issubclass(select_template_arg[1, int, float].argument, float)
 
-    @mark.xfail
     def test08_using_of_static_data(self):
         """Derived class using static data of base"""
 
@@ -217,10 +216,10 @@ class TestTEMPLATES:
         b1 = cppyy.gbl.DerivedClassUsingStatic["size_t"](  0)
         b2 = cppyy.gbl.DerivedClassUsingStatic["size_t"](100)
 
-      # assert b1.ref_value == 42
+        assert b1.ref_value == 42
         assert b1.m_value   ==  0
 
-      # assert b2.ref_value == 42
+        assert b2.ref_value == 42
         assert b2.m_value   == 42
 
     def test09_templated_callable(self):
@@ -1108,7 +1107,7 @@ class TestTEMPLATES:
                         run_n = getattr(cppyy.gbl, 'TNaRun_%d' % n)
                         getattr(run_n, t)
 
-    @mark.xfail(run=not(IS_MAC and IS_CLING), reason="Crashes on OS X + Cling")
+    # @mark.xfail(run=not(IS_MAC and IS_CLING), reason="Crashes on OS X + Cling")
     def test33_using_template_argument(self):
         """`using` type as template argument"""
 
@@ -1132,7 +1131,7 @@ class TestTEMPLATES:
         # assert ns.testfun["UsingPtr::testptr"](cppyy.nullptr)
 
         assert ns.testptr.__name__     == "Test"
-        assert ns.testptr.__cpp_name__ == "UsingPtr::Test*"
+        assert ns.testptr.__cpp_name__ == "UsingPtr::Test*" # XXX: fails
 
         assert cppyy.gbl.std.vector[ns.Test]
         assert ns.testptr
@@ -1186,7 +1185,7 @@ class TestTEMPLATED_TYPEDEFS:
         assert 'in_type' in dir(tct[int, dum, 4])
 
         assert in_type.__name__ == 'in_type'
-        assert in_type.__cpp_name__ == 'TemplatedTypedefs::DerivedWithUsing<int, TemplatedTypedefs::SomeDummy, 4>::in_type'
+        assert in_type.__cpp_name__ == 'TemplatedTypedefs::DerivedWithUsing<int, TemplatedTypedefs::SomeDummy, 4>::in_type' # XXX: may need to custom printing instead of depending on clang (for default template args)
 
         in_type_tt = tct[int, dum, 4].in_type_tt
         assert 'in_type_tt' in dir(tct[int, dum, 4])
@@ -1285,7 +1284,6 @@ class TestTEMPLATE_TYPE_REDUCTION:
         import cppyy
         cls.templates = cppyy.load_reflection_info(cls.test_dct)
 
-    @mark.xfail
     def test01_reduce_binary(self):
         """Squash template expressions for binary operations (like in gmpxx)"""
 

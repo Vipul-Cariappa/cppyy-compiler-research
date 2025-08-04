@@ -26,7 +26,6 @@ class TestREFLEX:
         with raises(TypeError):
             cppyy.addressof('doesnotexist')
 
-    @mark.xfail
     def test02_method_reflection(self):
         """Method reflection tooling"""
 
@@ -51,7 +50,6 @@ class TestREFLEX:
         assert ns.MyData_m1.__init__.__cpp_reflex__(r.RETURN_TYPE, r.AS_TYPE)   == ns.MyData_m1
         assert ns.MyData_m1.__init__.__cpp_reflex__(r.RETURN_TYPE, r.AS_STRING) == 'ReflexTest::MyData_m1'
 
-    @mark.xfail
     def test03_datamember_reflection(self):
         """Data member reflection tooling"""
 
@@ -153,7 +151,6 @@ class TestNUMBA:
         assert (go_fast(x) == go_slow(x)).all()
         assert self.compare(go_slow, go_fast, 100000, x)
 
-    @mark.xfail
     def test03_proxy_argument_for_field(self):
         """Numba-JITing of a free function taking a proxy argument for field access"""
 
@@ -221,7 +218,6 @@ class TestNUMBA:
         assert((go_fast(x, d) == go_slow(x, d)).all())
         assert self.compare(go_slow, go_fast, 10000, x, d)
 
-    @mark.xfail
     def test05_datatype_mapping(self):
         """Numba-JITing of various data types"""
 
