@@ -16,6 +16,7 @@ import numba.core.typing.templates as nb_tmpl
 import numba.core.types as nb_types
 import numba.core.typing as nb_typing
 
+import llvmlite.binding as ll
 from llvmlite import ir
 from numba.extending import make_attribute_wrapper
 import re
@@ -225,6 +226,24 @@ class CppFunctionNumbaType(nb_types.Callable):
         def lower_external_call(context, builder, sig, args,
                 ty=nb_types.ExternalFunctionPointer(extsig, ol.get_pointer),
                 pyval=self._func, is_method=self._is_method):
+            if isinstance(pyval, cpp_types.Function) and pyval.__inline__():
+                target_function_module = ll.parse_assembly(cppyy.llvmir_of(pyval))
+                try:
+                    getattr(builder.module, "defered_modules_to_linkin")
+                except AttributeError:
+                    builder.module.defered_modules_to_linkin = []
+                builder.module.defered_modules_to_linkin.append(target_function_module)
+    
+                blah = ir.Function(
+                    builder.module,
+                    ir.FunctionType(
+                        _cpp2ir[_numba2cpp[ty.sig.return_type]],
+                        tuple(_cpp2ir[_numba2cpp[i]] for i in ty.sig.args)
+                    ),
+                    cppyy.mangled_name_of(pyval)
+                )
+                return builder.call(blah, args)
+
             ptrty = context.get_function_pointer_type(ty)
             ptrval = context.add_dynamic_addr(
                 builder, ty.get_pointer(pyval), info=str(pyval))

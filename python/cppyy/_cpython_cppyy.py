@@ -11,6 +11,8 @@ __all__ = [
     'gbl',
     'load_reflection_info',
     'addressof',
+    'llvmir_of',
+    'mangled_name_of',
     'bind_object',
     'nullptr',
     'default',
@@ -186,6 +188,8 @@ del add_default_paths
 
 #- exports -------------------------------------------------------------------
 addressof     = _backend.addressof
+llvmir_of     = _backend.llvmir_of
+mangled_name_of     = _backend.mangled_name_of
 bind_object   = _backend.bind_object
 nullptr       = _backend.nullptr
 default       = _backend.default

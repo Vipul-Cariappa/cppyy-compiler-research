@@ -723,6 +723,33 @@ class TestNUMBA:
         result = mul_njit(vector, 5)
         assert(result == matrix2)
 
+    def test15_numba_cross_inlining(self):
+        """Inlining C++ function into Numba-JIT"""
+
+        import cppyy, numba
+        import cppyy.numba_ext
+
+        cppyy.cppdef(r"""
+            inline long sq(long a) { return a * a; }
+        """)
+
+        def go_slow(a):
+            s = 0
+            for i in range(a):
+                s += cppyy.gbl.sq(i)
+            return s
+
+        @numba.jit(nopython=True)
+        def go_fast(a):
+            s = 0
+            for i in range(a):
+                s += cppyy.gbl.sq(i)
+            return s
+
+        x = 25
+        assert go_fast(x) == go_slow(x)
+        assert self.compare(go_slow, go_fast, 300000, x)
+
 
 @mark.skipif(has_numba == False, reason="numba not found")
 class TestNUMBA_DOC:
