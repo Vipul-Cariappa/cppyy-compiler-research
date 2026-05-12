@@ -1444,6 +1444,24 @@ class TestREGRESSION:
 
         assert gbl.NN["std::vector<int>::value_type, 5"]().F is True
 
+    def test49_callbacks_with_typedef(self):
+        """Test callback function with typedefs arg types"""
+
+        import cppyy
+        from cppyy import gbl
+
+        cppyy.cppdef(r"""
+            namespace N49 {
+            typedef signed int i32;
+            typedef unsigned int u32;
+            u32 callback(i32 i) { return i > 0 ? i : 0; }
+            long callme(unsigned int (*fn)(signed int), int k) { return fn(k); }
+            }
+        """)
+
+        ns = gbl.N49
+        assert ns.callme(ns.callback, 49) == 49
+
     def test50_using_decl_base_this_offset(self):
         """A using-declaration-imported method from a non-zero-offset base must
         adjust the `this` pointer to that base's subobject.
