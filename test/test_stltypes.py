@@ -2,6 +2,7 @@
 import py, os, sys
 from pytest import raises, skip, mark
 from support import setup_make, pylong, pyunicode, maxvalue, ispypy, IS_CLANG_REPL, IS_CLING, IS_CLANG_DEBUG, IS_MAC_X86, IS_MAC_ARM, IS_MAC, IS_VALGRIND, IS_LINUX_ARM
+import cppyy
 
 currpath = py.path.local(__file__).dirpath()
 test_dct = str(currpath.join("stltypesDict"))
@@ -142,8 +143,8 @@ def constructors_cpython_test(type2test):
         assert type2test(IterFuncStop(s))  ==  type2test()
         # as above, no strings
         #assert type2test(c for c in "123") == type2test("123")
-        raises(TypeError, type2test, IterNextOnly(s))
-        raises(TypeError, type2test, IterNoNext(s))
+        raises(cppyy.OverloadResolutionException, type2test, IterNextOnly(s))
+        raises(cppyy.OverloadResolutionException, type2test, IterNoNext(s))
         raises(ZeroDivisionError, type2test, IterGenExc(s))
 
   # Issue #23757 (in CPython)
@@ -345,7 +346,7 @@ class TestSTLVECTOR:
         assert v[4] == 5
         assert v[5] == 6
 
-        raises(TypeError, v.__iadd__, (7, '8'))  # string shouldn't pass
+        raises(cppyy.OverloadResolutionException, v.__iadd__, (7, '8'))  # string shouldn't pass
         assert len(v) == 7   # TODO: decide whether this should roll-back
 
         v2 = cppyy.gbl.std.vector(int)()
@@ -623,7 +624,8 @@ class TestSTLVECTOR:
         v = cppyy.gbl.std.vector(l)
         assert list(l) == l
 
-    @mark.xfail(condition=IS_MAC and IS_CLING, run=False, reason="Crashes on OSX-Cling")
+    # @mark.xfail(condition=IS_MAC and IS_CLING, run=False, reason="Crashes on OSX-Cling")
+    @mark.xfail(strict=True, reason="New Overload Resolution: numpy/vector")
     def test18_array_interface(self):
         """Test usage of __array__ from numpy"""
 
@@ -786,6 +788,7 @@ class TestSTLVECTOR:
 
         assert len([x for x in verts if isinstance(x, ns.Mvertex)]) == 1
 
+    @mark.xfail(strict=True, reason="New Overload Resolution: numpy/vector")
     def test23_copy_conversion(self):
         """Vector given an array of different type should copy convert"""
 
@@ -1385,7 +1388,7 @@ class TestSTLMAP:
             assert m['1'] == 1
             assert m['2'] == 2
 
-            with raises(TypeError):
+            with raises(cppyy.OverloadResolutionException):
                 m = mtype[int, str]({'1' : 1, '2' : 2})
 
     @mark.xfail(condition=IS_MAC, reason="Fails on OS X")

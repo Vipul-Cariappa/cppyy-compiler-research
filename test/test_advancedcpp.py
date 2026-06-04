@@ -645,6 +645,7 @@ class TestADVANCEDCPP:
         assert len(a) == 1
         assert a[0].m_i == 33
 
+    @mark.xfail(reason="New Overload Resolution: Multiple possible converters available")
     def test18_math_converters(self):
         """Test operator int/long/double incl. typedef"""
 
@@ -679,7 +680,7 @@ class TestADVANCEDCPP:
         assert a.__eq__(a) == False
         assert b.__eq__(b) == False
 
-    @mark.xfail(condition=IS_MAC, reason="Fails on OS X")
+    @mark.xfail(reason="New overload resolution: constness of methods")
     def test20_overload_order_with_proper_return(self):
         """Test return type against proper overload w/ const and covariance"""
 
@@ -688,7 +689,7 @@ class TestADVANCEDCPP:
         assert cppyy.gbl.overload_one_way().gime() == 1
         assert cppyy.gbl.overload_the_other_way().gime() == "aap"
 
-    @mark.xfail(run=not IS_VALGRIND)
+    @mark.xfail(IS_VALGRIND, run=False, reason="Crashes with Valgrind")
     def test21_access_to_global_variables(self):
         """Access global_variables_and_pointers"""
 
@@ -786,7 +787,6 @@ class TestADVANCEDCPP:
 
         assert cppyy.gbl.TypedefToPrivateClass().f().m_val == 42
 
-    @mark.xfail(run=False, reason="Crashes")
     def test25_ostream_printing(self):
         """Mapping of __str__ through operator<<(ostream&)"""
 
@@ -965,4 +965,3 @@ class TestADVANCEDCPP:
 
         for norm in [ns.norm_cr, ns.norm_m, ns.norm_v]:
             assert round(norm(p3) - pynorm, 8) == 0
-

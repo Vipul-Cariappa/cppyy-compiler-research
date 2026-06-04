@@ -715,7 +715,7 @@ namespace Zoo {
         assert raises(TypeError, mul[int, int], 1, 1.)
         assert type(mul[int, int, float](1, 1)) == float
         # TODO: the following error message is rather confusing :(
-        assert raises(TypeError, mul[int, int], 1, 'a')
+        assert raises(cppyy.OverloadResolutionException, mul[int, int], 1, 'a')
 
         assert mul['double, double, double'](1., 5) == 5.
 

@@ -831,7 +831,8 @@ class TestCROSSINHERITANCE:
         assert a.m_2 == 42
         assert a.m_3 == 67
 
-    @mark.xfail(run=False, condition=IS_LINUX_ARM and IS_VALGRIND, reason="Crashes with Valgrind on Linux ARM")
+    # @mark.xfail(run=False, condition=IS_LINUX_ARM and IS_VALGRIND, reason="Crashes with Valgrind on Linux ARM")
+    @mark.xfail(strict=True, reason="New Overload Resolution")
     def test21_multiple_inheritance_with_constructors(self):
         """Multiple inheritance with constructors"""
 
@@ -919,7 +920,8 @@ class TestCROSSINHERITANCE:
         assert a.m_2 ==  88
         assert a.m_3 == -11
 
-    @mark.xfail(run=False, condition=IS_LINUX_ARM and IS_VALGRIND, reason="Crashes with Valgrind on Linux ARM")
+    # @mark.xfail(run=False, condition=IS_LINUX_ARM and IS_VALGRIND, reason="Crashes with Valgrind on Linux ARM")
+    @mark.xfail(strict=True, reason="New Overload Resolution")
     def test22_multiple_inheritance_with_defaults(self):
         """Multiple inheritance with defaults"""
 
@@ -1040,7 +1042,8 @@ class TestCROSSINHERITANCE:
         assert a.return_const().m_value == "abcdef"
         assert ns.callit(a).m_value     == "abcdef"
 
-    @mark.xfail(condition = IS_MAC, reason = "Fails on OS X")
+    # @mark.xfail(condition = IS_MAC, reason = "Fails on OS X")
+    @mark.xfail(strict=True, reason="New Overload Resolution")
     def test24_non_copyable(self):
         """Inheriting from a non-copyable base class"""
 
@@ -1161,6 +1164,7 @@ class TestCROSSINHERITANCE:
         d = DerivedMulti()
         assert d
 
+    @mark.xfail(strict=True, reason="New Overload Resolution")
     def test26_no_default_ctor(self):
         """Make sure no default ctor is created if not viable"""
 

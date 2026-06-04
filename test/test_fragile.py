@@ -68,8 +68,8 @@ class TestFRAGILE:
         assert fragile.D().check() == ord('D')
 
         d = fragile.D()
-        raises(TypeError, d.overload, None)
-        raises(TypeError, d.overload, None, None, None)
+        raises(cppyy.OverloadResolutionException, d.overload, None)
+        raises(cppyy.OverloadResolutionException, d.overload, None, None, None)
 
         d.overload('a')
         d.overload(1)
@@ -178,28 +178,26 @@ class TestFRAGILE:
 
         d = fragile.D()
         try:
-            d.check(None)         # raises TypeError
+            d.check(None)         # raises OverloadResolutionException
             assert 0
-        except TypeError as e:
-            assert "fragile::D::check()" in str(e)
-            assert "TypeError: takes at most 0 arguments (1 given)" in str(e)
-            assert "TypeError: takes at least 2 arguments (1 given)" in str(e)
+        except cppyy.OverloadResolutionException as e:
+            err_msg = str(e).replace(" ", "")
+            assert "fragile::D::check()" in err_msg
+            assert "fragile::D::check(int, int)".replace(" ", "") in err_msg
+            assert "Deduced Argument Types: (::fragile::D&, NoneType)".replace(" ", "") in err_msg
 
         try:
-            d.overload(None)      # raises TypeError
+            d.overload(None)      # raises OverloadResolutionException
             assert 0
-        except TypeError as e:
+        except cppyy.OverloadResolutionException as e:
             # TODO: pypy-c does not indicate which argument failed to convert, CPython does
             # likewise there are still minor differences in descriptiveness of messages
             err_msg = str(e).replace(" ", "")
             assert "fragile::D::overload()" in err_msg
-            assert "TypeError: takes at most 0 arguments (1 given)" in str(e)
             assert "fragile::D::overload(fragile::no_such_class*)" in err_msg
-            #assert "no converter available for 'fragile::no_such_class*'" in str(e)
             assert "void fragile::D::overload(char, int i = 0)".replace(" ", "") in err_msg
-            #assert "char or small int type expected" in str(e)
             assert "void fragile::D::overload(int, fragile::no_such_class * p = 0)".replace(" ", "") in err_msg
-            #assert "int/long conversion expects an integer object" in str(e)
+            assert "Deduced Argument Types: (::fragile::D&, NoneType)".replace(" ", "") in err_msg
 
         j = fragile.J()
         assert fragile.J.method1.__doc__ == j.method1.__doc__
@@ -617,7 +615,6 @@ class TestFRAGILE:
                 int add42(int i) { return i + 42; }
             }""")
 
-    @mark.xfail(condition=IS_CLANG_REPL, reason="Fails on ClangRepl")
     def test26_macro(self):
         """Test access to C++ pre-processor macro's"""
 
