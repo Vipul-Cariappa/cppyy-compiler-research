@@ -831,8 +831,7 @@ class TestCROSSINHERITANCE:
         assert a.m_2 == 42
         assert a.m_3 == 67
 
-    # @mark.xfail(run=False, condition=IS_LINUX_ARM and IS_VALGRIND, reason="Crashes with Valgrind on Linux ARM")
-    @mark.xfail(strict=True, reason="New Overload Resolution")
+    @mark.xfail(run=False, condition=IS_LINUX_ARM and IS_VALGRIND, reason="Crashes with Valgrind on Linux ARM")
     def test21_multiple_inheritance_with_constructors(self):
         """Multiple inheritance with constructors"""
 
@@ -920,8 +919,7 @@ class TestCROSSINHERITANCE:
         assert a.m_2 ==  88
         assert a.m_3 == -11
 
-    # @mark.xfail(run=False, condition=IS_LINUX_ARM and IS_VALGRIND, reason="Crashes with Valgrind on Linux ARM")
-    @mark.xfail(strict=True, reason="New Overload Resolution")
+    @mark.xfail(run=False, condition=IS_LINUX_ARM and IS_VALGRIND, reason="Crashes with Valgrind on Linux ARM")
     def test22_multiple_inheritance_with_defaults(self):
         """Multiple inheritance with defaults"""
 
@@ -968,14 +966,10 @@ class TestCROSSINHERITANCE:
                 a1 = val1 is not None and (val1,) or ()
                 a2 = val2 is not None and (val2,) or ()
                 a3 = val3 is not None and (val3,) or ()
-                if nArgs == 3:
-                    super(MyPyDerived, self).__init__(a1, a2, a3)
-                elif nArgs == 0:
+                if nArgs == 0:
                     super(MyPyDerived, self).__init__()
-                elif nArgs == 1:
-                    super(MyPyDerived, self).__init__(a1)
-                elif nArgs == 2:
-                    super(MyPyDerived, self).__init__(a1, a2)
+                else:
+                    super(MyPyDerived, self).__init__(a1, a2, a3)
 
             def x(self):
                 return 16
@@ -1042,8 +1036,7 @@ class TestCROSSINHERITANCE:
         assert a.return_const().m_value == "abcdef"
         assert ns.callit(a).m_value     == "abcdef"
 
-    # @mark.xfail(condition = IS_MAC, reason = "Fails on OS X")
-    @mark.xfail(strict=True, reason="New Overload Resolution")
+    @mark.xfail(condition = IS_MAC, reason = "Fails on OS X")
     def test24_non_copyable(self):
         """Inheriting from a non-copyable base class"""
 
@@ -1071,7 +1064,7 @@ class TestCROSSINHERITANCE:
 
         class NoCopyNoMove {
         public:
-            NoCopyNoMove() = delete;
+            NoCopyNoMove() = default;
             NoCopyNoMove(const NoCopyNoMove&) = delete;
             NoCopyNoMove(NoCopyNoMove&&) = delete;
             NoCopyNoMove& operator=(const NoCopyNoMove&) = delete;
@@ -1164,7 +1157,6 @@ class TestCROSSINHERITANCE:
         d = DerivedMulti()
         assert d
 
-    @mark.xfail(strict=True, reason="New Overload Resolution")
     def test26_no_default_ctor(self):
         """Make sure no default ctor is created if not viable"""
 
@@ -1200,21 +1192,21 @@ class TestCROSSINHERITANCE:
                 def __init__(self):
                     super(PyDerived, self).__init__()
 
-            with raises(TypeError):
+            with raises(cppyy.OverloadResolutionException):
                 PyDerived()
 
             class PyDerived(cppyy.multi(kls, ns.Simple)):
                 def __init__(self):
                     super(PyDerived, self).__init__()
 
-            with raises(TypeError):
+            with raises(cppyy.OverloadResolutionException):
                 PyDerived()
 
             class PyDerived(cppyy.multi(ns.Simple, kls)):
                 def __init__(self):
                     super(PyDerived, self).__init__()
 
-            with raises(TypeError):
+            with raises(cppyy.OverloadResolutionException):
                 PyDerived()
 
     def test27_interfaces(self):
